@@ -1,0 +1,94 @@
+name: build 
+# This workflow is triggered on pushes to the repository.
+on: [push]
+env:
+  version_in_development: v0.0.0
+
+jobs:
+  build: 
+    name: build 
+    runs-on: ubuntu-latest
+    container: tipibuild/tipi-ubuntu
+#    env:
+#      TIPI_ENDPOINT: https://tipi.build
+#      TIPI_ACCESS_TOKEN: "eyJhbGciOiJFUzM4NCIsInR5cCI6IkpXVCJ9.eyJuaWNrIjoibGludXhob3N0LXRpcGktdGVzdC11c2VyIiwiZW1haWwiOiJsaW51eGhvc3QtdGlwaS10ZXN0LXVzZXJAdGlwaS5idWlsZCIsIm9yZ2FuaXphdGlvbnMiOltdLCJncmFudCI6ImFjY2VzcyIsImlhdCI6MTYzMjczNTg2MiwiZXhwIjoxNjMyNzM3MzYyLCJhdWQiOiJ0aXBpLmJ1aWxkIiwiaXNzIjoidGlwaS5idWlsZCIsInN1YiI6IjZmOWJjYmUwLTFjNTItMTFlYy1iNGVhLWM5OTgyOWQwOGNhMSJ9.B6_ty6sOGkxGUq-1AOQ2yyTXxZIllDWphgU5REufthjkA1NerYE1SkJCeuoAQxsSbYSNq30zl-ecg2XLiEQ91DyzLTd7h65XVxr9qupNympdwlq1hfTJY434GoI4rDni"
+#      TIPI_REFRESH_TOKEN: "eyJhbGciOiJFUzM4NCIsInR5cCI6IkpXVCJ9.eyJncmFudCI6InJlZnJlc2giLCJuaWNrIjoibGludXhob3N0LXRpcGktdGVzdC11c2VyIiwianRpIjoiN2UzZTNjYTAtMWY3Ny0xMWVjLWI0ZWEtYzk5ODI5ZDA4Y2ExIiwiaWF0IjoxNjMyNzM1ODYyLCJleHAiOjE2NjQzNTgyNjIsImF1ZCI6InRpcGkuYnVpbGQiLCJpc3MiOiJ0aXBpLmJ1aWxkIiwic3ViIjoiNmY5YmNiZTAtMWM1Mi0xMWVjLWI0ZWEtYzk5ODI5ZDA4Y2ExIn0.4kAwpH_QAM5Fz8YEwSEaMkfqheRAgNrTHGCNHnA2MK-9Z3d5ueNRCCRWhkF_P3UKluVhKCswdVuDWtwY32cTm81Z1jp8Eq1WOJJvb8nHDUeuOBeZAUSm3hS_Nmt0HNXK"
+#      TIPI_VAULT_PASSPHRASE: testtest    
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: tipi builds project 
+        run: |
+          export HOME=/root
+          mkdir -p ~/.tipi
+          tipi build . -t linux-cxx17 -C Release --verbose
+          tipi build . -t windows-cxx17 -C Release --verbose
+          tipi build . -t macos-cxx17 -C Release --verbose
+
+      - name: Archive linux artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: ssh-over-http-proxy-linux
+          path: build/linux-cxx17/bin/connect
+      - name: Archive win10 artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: ssh-over-http-proxy-win
+          path: build/windows-cxx17/bin/connect.exe
+      - name: Archive macos artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: ssh-over-http-proxy-macos
+          path: build/macos-cxx17/bin/connect
+
+  draft-release:
+    name: Draft Release
+    if: github.ref == 'refs/heads/develop' || github.head_ref == 'feature/draft-release'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+      - name: Display structure of downloaded files
+        run: ls -R
+      - name: make release zip
+        run: |
+          # Produces a release.txt with the artifacts sha1sum.
+          tools/make_release.sh
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          commitish: main
+          tag_name: ${{ env.version_in_development }}
+          release_name: ${{ env.version_in_development }} ${{ github.sha }}
+          body_path: release.txt
+          draft: true
+          prerelease: true 
+
+      - name: Upload linux release
+        id: upload-linux-release-asset 
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}  
+          asset_path: ssh-over-http-proxy-linux.zip
+          asset_name: ssh-over-http-proxy-linux.zip
+          asset_content_type: application/zip
+      
+      - name: Upload win release
+        id: upload-win-release-asset 
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}  
+          asset_path: ssh-over-http-proxy-win.zip
+          asset_name: ssh-over-http-proxy-win.zip
+          asset_content_type: application/zip
+                
+      - name: Upload macOS release
+        id: upload-macOS-release-asset 
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}  
+          asset_path: ssh-over-http-proxy-macos.zip
+          asset_name: ssh-over-http-proxy-macos.zip
+          asset_content_type: application/zip
