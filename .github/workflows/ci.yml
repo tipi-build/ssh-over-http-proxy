@@ -9,11 +9,11 @@ jobs:
     name: build 
     runs-on: ubuntu-latest
     container: tipibuild/tipi-ubuntu
-#    env:
-#      TIPI_ENDPOINT: https://tipi.build
-#      TIPI_ACCESS_TOKEN: "eyJhbGciOiJFUzM4NCIsInR5cCI6IkpXVCJ9.eyJuaWNrIjoibGludXhob3N0LXRpcGktdGVzdC11c2VyIiwiZW1haWwiOiJsaW51eGhvc3QtdGlwaS10ZXN0LXVzZXJAdGlwaS5idWlsZCIsIm9yZ2FuaXphdGlvbnMiOltdLCJncmFudCI6ImFjY2VzcyIsImlhdCI6MTYzMjczNTg2MiwiZXhwIjoxNjMyNzM3MzYyLCJhdWQiOiJ0aXBpLmJ1aWxkIiwiaXNzIjoidGlwaS5idWlsZCIsInN1YiI6IjZmOWJjYmUwLTFjNTItMTFlYy1iNGVhLWM5OTgyOWQwOGNhMSJ9.B6_ty6sOGkxGUq-1AOQ2yyTXxZIllDWphgU5REufthjkA1NerYE1SkJCeuoAQxsSbYSNq30zl-ecg2XLiEQ91DyzLTd7h65XVxr9qupNympdwlq1hfTJY434GoI4rDni"
-#      TIPI_REFRESH_TOKEN: "eyJhbGciOiJFUzM4NCIsInR5cCI6IkpXVCJ9.eyJncmFudCI6InJlZnJlc2giLCJuaWNrIjoibGludXhob3N0LXRpcGktdGVzdC11c2VyIiwianRpIjoiN2UzZTNjYTAtMWY3Ny0xMWVjLWI0ZWEtYzk5ODI5ZDA4Y2ExIiwiaWF0IjoxNjMyNzM1ODYyLCJleHAiOjE2NjQzNTgyNjIsImF1ZCI6InRpcGkuYnVpbGQiLCJpc3MiOiJ0aXBpLmJ1aWxkIiwic3ViIjoiNmY5YmNiZTAtMWM1Mi0xMWVjLWI0ZWEtYzk5ODI5ZDA4Y2ExIn0.4kAwpH_QAM5Fz8YEwSEaMkfqheRAgNrTHGCNHnA2MK-9Z3d5ueNRCCRWhkF_P3UKluVhKCswdVuDWtwY32cTm81Z1jp8Eq1WOJJvb8nHDUeuOBeZAUSm3hS_Nmt0HNXK"
-#      TIPI_VAULT_PASSPHRASE: testtest    
+    env:
+      TIPI_ENDPOINT: https://tipi.build
+      TIPI_ACCESS_TOKEN: ${{ secrets.TIPI_ACCESS_TOKEN }}
+      TIPI_REFRESH_TOKEN: ${{ secrets.TIPI_REFRESH_TOKEN }}
+      TIPI_VAULT_PASSPHRASE: ${{ secrets.TIPI_VAULT_PASSPHRASE }}  
     steps:
       - name: checkout
         uses: actions/checkout@v2
