@@ -2847,8 +2847,7 @@ accept_connection (u_short port)
 
 
 /** Main of program **/
-int
-main( int argc, char **argv )
+int main( int argc, char **argv )
 {
     int ret;
     int remote;                                 /* socket */
