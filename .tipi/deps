@@ -1,0 +1,7 @@
+{
+  "platform:vs-15-2017-win64-cxx17" : [ "target::ws2_32" ]
+  , "platform:vs-16-2019-win64-cxx17" : [ "target::ws2_32" ]
+	, "platform:windows" : [  "target::ws2_32" ]
+  , "platform:windows-cxx17" : [  "target::ws2_32" ]
+    
+}
