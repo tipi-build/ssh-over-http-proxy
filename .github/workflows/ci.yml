@@ -4,9 +4,9 @@ on: [push]
 env:
   version_in_development: v0.0.0
   TIPI_ENDPOINT: https://tipi.build
-  TIPI_ACCESS_TOKEN: '${{ secrets.TIPI_ACCESS_TOKEN }}'
-  TIPI_REFRESH_TOKEN: '${{ secrets.TIPI_REFRESH_TOKEN }}'
-  TIPI_VAULT_PASSPHRASE: '${{ secrets.TIPI_VAULT_PASSPHRASE }}' 
+  TIPI_ACCESS_TOKEN: ${{ secrets.TIPI_ACCESS_TOKEN_PROD }}
+  TIPI_REFRESH_TOKEN: ${{ secrets.TIPI_REFRESH_TOKEN_PROD }}
+  TIPI_VAULT_PASSPHRASE: ${{ secrets.TIPI_VAULT_PASSPHRASE_PROD }}
 
 jobs:
   build: 
@@ -15,9 +15,9 @@ jobs:
     container: tipibuild/tipi-ubuntu
     env:
       TIPI_ENDPOINT: https://tipi.build
-      TIPI_ACCESS_TOKEN: '${{ secrets.TIPI_ACCESS_TOKEN }}'
-      TIPI_REFRESH_TOKEN: '${{ secrets.TIPI_REFRESH_TOKEN }}'
-      TIPI_VAULT_PASSPHRASE: '${{ secrets.TIPI_VAULT_PASSPHRASE }}'  
+      TIPI_ACCESS_TOKEN: ${{ secrets.TIPI_ACCESS_TOKEN_PROD }}
+      TIPI_REFRESH_TOKEN: ${{ secrets.TIPI_REFRESH_TOKEN_PROD }}
+      TIPI_VAULT_PASSPHRASE: ${{ secrets.TIPI_VAULT_PASSPHRASE_PROD }}  
     steps:
       - name: checkout
         uses: actions/checkout@v2
