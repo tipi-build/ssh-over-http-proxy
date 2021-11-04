@@ -1,0 +1,114 @@
+name: build 
+# This workflow is triggered on pushes to the repository.
+on: [push]
+env:
+  version_in_development: v0.0.0
+  TIPI_ENDPOINT: https://tipi.build
+  TIPI_ACCESS_TOKEN: ${{ secrets.TIPI_ACCESS_TOKEN_PROD }}
+  TIPI_REFRESH_TOKEN: ${{ secrets.TIPI_REFRESH_TOKEN_PROD }}
+  TIPI_VAULT_PASSPHRASE: ${{ secrets.TIPI_VAULT_PASSPHRASE_PROD }}
+  GITHUB_USER: ${{ github.actor }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  build: 
+    name: build 
+    runs-on: ubuntu-latest
+    container: tipibuild/tipi-ubuntu
+    env:
+      TIPI_ENDPOINT: https://tipi.build
+      TIPI_ACCESS_TOKEN: ${{ secrets.TIPI_ACCESS_TOKEN_PROD }}
+      TIPI_REFRESH_TOKEN: ${{ secrets.TIPI_REFRESH_TOKEN_PROD }}
+      TIPI_VAULT_PASSPHRASE: ${{ secrets.TIPI_VAULT_PASSPHRASE_PROD }}  
+      GITHUB_USER: ${{ github.actor }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: tipi builds project 
+        run: |
+          export HOME=/root
+          mkdir -p ~/.tipi
+          # We need to create a macOs compatible path 
+          mkdir -p /Users/tipibuild/ssh-over-http-proxy
+          cp -R ./ /Users/tipibuild/ssh-over-http-proxy
+          tipi connect --verbose
+          tipi build . -t linux-cxx17 -C Release --verbose
+          tipi build . -t windows-cxx17 -C Release --verbose
+          tipi build /Users/tipibuild/ssh-over-http-proxy -t macos-cxx17 -C Release --verbose
+          mkdir -p build/macos-cxx17/bin/
+          cp /Users/tipibuild/ssh-over-http-proxy/build/macos-cxx17/bin/connect ./build/macos-cxx17/bin/
+
+
+      - name: Archive linux artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: ssh-over-http-proxy-linux
+          path: build/linux-cxx17/bin/connect
+      - name: Archive win10 artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: ssh-over-http-proxy-win
+          path: build/windows-cxx17/bin/connect.exe
+      - name: Archive macos artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: ssh-over-http-proxy-macos
+          path: build/macos-cxx17/bin/connect
+
+  draft-release:
+    name: Draft Release
+    if: github.ref == 'refs/heads/main' || github.head_ref == 'refs/heads/develop'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+      - name: Display structure of downloaded files
+        run: ls -R
+      - name: make release zip
+        run: |
+          # Produces a release.txt with the artifacts sha1sum.
+          chmod +x tools/make_release.sh
+          tools/make_release.sh
+      - name: Create Release
+        id: create_release
+        env: 
+            GITHUB_USER: ${{ github.actor }}
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ env.version_in_development }}
+          release_name: ${{ env.version_in_development }} ${{ github.sha }}
+          body_path: release.txt
+          draft: true
+          prerelease: true 
+
+      - name: Upload linux release
+        id: upload-linux-release-asset 
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}  
+          asset_path: ssh-over-http-proxy-linux.zip
+          asset_name: ssh-over-http-proxy-linux.zip
+          asset_content_type: application/zip
+      
+      - name: Upload win release
+        id: upload-win-release-asset 
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}  
+          asset_path: ssh-over-http-proxy-win.zip
+          asset_name: ssh-over-http-proxy-win.zip
+          asset_content_type: application/zip
+                
+      - name: Upload macOS release
+        id: upload-macOS-release-asset 
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}  
+          asset_path: ssh-over-http-proxy-macos.zip
+          asset_name: ssh-over-http-proxy-macos.zip
+          asset_content_type: application/zip
