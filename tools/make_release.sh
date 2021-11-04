@@ -1,3 +1,7 @@
+chmod +x ssh-over-http-proxy-linux/connect
+chmod +x ssh-over-http-proxy-macos/connect
+chmod +x ssh-over-http-proxy-win/connect.exe
+
 zip -r ssh-over-http-proxy-linux.zip ssh-over-http-proxy-linux
 zip -r ssh-over-http-proxy-win.zip ssh-over-http-proxy-win
 zip -r ssh-over-http-proxy-macos.zip ssh-over-http-proxy-macos

@@ -26,10 +26,12 @@ jobs:
         run: |
           export HOME=/root
           mkdir -p ~/.tipi
+          mkdir -p /Users/tipibuild/ssh-over-http-proxy
+          cp -R ./ /Users/tipibuild/ssh-over-http-proxy
           tipi connect --verbose
           tipi build . -t linux-cxx17 -C Release --verbose
           tipi build . -t windows-cxx17 -C Release --verbose
-          tipi build . -t macos-cxx17 -C Release --verbose
+          tipi build /Users/tipibuild/ssh-over-http-proxy -t macos-cxx17 -C Release --verbose
 
       - name: Archive linux artifacts
         uses: actions/upload-artifact@v1
@@ -45,7 +47,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: ssh-over-http-proxy-macos
-          path: build/macos-cxx17/bin/connect
+          path: /Users/tipibuild/ssh-over-http-proxy/build/macos-cxx17/bin/connect
 
   draft-release:
     name: Draft Release
