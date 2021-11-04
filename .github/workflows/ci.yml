@@ -32,9 +32,11 @@ jobs:
           tipi build . -t linux-cxx17 -C Release --verbose
           tipi build . -t windows-cxx17 -C Release --verbose
           tipi build /Users/tipibuild/ssh-over-http-proxy -t macos-cxx17 -C Release --verbose
-          echo "end of build"
+          mkdir -p build/macos-cxx17/bin/
+          cp /Users/tipibuild/ssh-over-http-proxy/build/macos-cxx17/bin/connect ./build/macos-cxx17/bin/
           ls -R
-
+          echo "another search"
+          ls -R /Users/tipibuild/ssh-over-http-proxy/
 
       - name: Archive linux artifacts
         uses: actions/upload-artifact@v1
@@ -50,7 +52,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: ssh-over-http-proxy-macos
-          path: /Users/tipibuild/ssh-over-http-proxy/build/macos-cxx17/bin/connect
+          path: build/macos-cxx17/bin/connect
 
   draft-release:
     name: Draft Release
