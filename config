@@ -1,2 +1,0 @@
-Host *
-  ProxyCommand connect-proxy yourproxy.com:3128 %h %p

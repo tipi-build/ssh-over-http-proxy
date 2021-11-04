@@ -30,6 +30,7 @@ jobs:
         run: |
           export HOME=/root
           mkdir -p ~/.tipi
+          # We need to create a macOs compatible path 
           mkdir -p /Users/tipibuild/ssh-over-http-proxy
           cp -R ./ /Users/tipibuild/ssh-over-http-proxy
           tipi connect --verbose
@@ -38,9 +39,7 @@ jobs:
           tipi build /Users/tipibuild/ssh-over-http-proxy -t macos-cxx17 -C Release --verbose
           mkdir -p build/macos-cxx17/bin/
           cp /Users/tipibuild/ssh-over-http-proxy/build/macos-cxx17/bin/connect ./build/macos-cxx17/bin/
-          ls -R
-          echo "another search"
-          ls -R /Users/tipibuild/ssh-over-http-proxy/
+
 
       - name: Archive linux artifacts
         uses: actions/upload-artifact@v1
@@ -81,7 +80,6 @@ jobs:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         uses: actions/create-release@v1
         with:
-          commitish: main
           tag_name: ${{ env.version_in_development }}
           release_name: ${{ env.version_in_development }} ${{ github.sha }}
           body_path: release.txt
