@@ -18,6 +18,8 @@ jobs:
       TIPI_ACCESS_TOKEN: ${{ secrets.TIPI_ACCESS_TOKEN_PROD }}
       TIPI_REFRESH_TOKEN: ${{ secrets.TIPI_REFRESH_TOKEN_PROD }}
       TIPI_VAULT_PASSPHRASE: ${{ secrets.TIPI_VAULT_PASSPHRASE_PROD }}  
+      GITHUB_USER: ${{ github.actor }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: checkout
         uses: actions/checkout@v2
@@ -68,6 +70,7 @@ jobs:
       - name: make release zip
         run: |
           # Produces a release.txt with the artifacts sha1sum.
+          chmod +x tools/make_release.sh
           tools/make_release.sh
       - name: Create Release
         id: create_release
