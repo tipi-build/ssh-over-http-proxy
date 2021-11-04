@@ -2,7 +2,7 @@ name: build
 # This workflow is triggered on pushes to the repository.
 on: [push]
 env:
-  version_in_development: v0.0.0
+  version_in_development: v1.0.0
   TIPI_ENDPOINT: https://tipi.build
   TIPI_ACCESS_TOKEN: ${{ secrets.TIPI_ACCESS_TOKEN_PROD }}
   TIPI_REFRESH_TOKEN: ${{ secrets.TIPI_REFRESH_TOKEN_PROD }}
